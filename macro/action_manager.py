@@ -8,6 +8,8 @@ import threading
 class ActionManager:
     '''Class for managing actions: data conversion, ordering, execution.'''
 
+    INTERVAL = 0.001 #interval in seconds denoting how frequently actions are polled for
+
     def __init__(self, save:list[Action] | None = None):
         '''
         Docstring for __init__
@@ -26,8 +28,6 @@ class ActionManager:
 
         self.running:bool = False #acts like a start or stop flag, start is True, stop is False
         self.looping:bool = False #if True, execution will repeat upon reaching end
-        self.INTERVAL = 0.001 #interval in seconds denoting how frequently actions are polled for
-        
 
     def _reset(self):
         '''Sorts the internal save based on the Actions' timestamps, then sets _execution_order to a copy of save and heapifies it.'''
@@ -65,7 +65,7 @@ class ActionManager:
         if not self._execution_order:
             print("Macro cannot run: is empty")
             return
-        next_item = heapq.heappop(self._execution_order)
+        next_item = heapq.heappop(self._execution_order) #reminder: _execution_order contains a tuple with the Action object at [2]
         next_time = start + next_item[2].timestamp
         while self.running:
             if time.perf_counter() >= next_time:
@@ -82,7 +82,7 @@ class ActionManager:
                         break
                 next_item = heapq.heappop(self._execution_order)
                 next_time = start + next_item[2].timestamp
-            time.sleep(self.INTERVAL)
+            time.sleep(ActionManager.INTERVAL)
         self._resolve_downed()
         self.running = False
         self._reset()
@@ -97,7 +97,7 @@ class ActionManager:
         self.running = False
 
     def to_dict_list(self) -> list[dict]:
-        '''Converts self.save into a list of dicts.'''
+        '''Converts self.save into a list of dicts for serialization.'''
         return [action.to_dict() for action in self.save]
 
     @classmethod
