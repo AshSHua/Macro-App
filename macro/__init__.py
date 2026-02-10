@@ -2,4 +2,5 @@
 
 from .action import Action
 from .action_manager import ActionManager
-__all__ = ["Action", "ActionManager"]
+from .input_conversion import key_to_str, str_to_key, button_to_str, str_to_button
+__all__ = ["Action", "ActionManager", "key_to_str", "str_to_key", "button_to_str", "str_to_button"]

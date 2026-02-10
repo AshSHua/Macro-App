@@ -1,5 +1,5 @@
 import json
-from .macro_configurator import MacroConfigurator
+
 INDENT = 4
 
 def save_as_json(data:dict, file_path:str):

@@ -63,6 +63,7 @@ class ActionManager:
         self.running = True
         start = time.perf_counter()
         if not self._execution_order:
+            self.running = False
             print("Macro cannot run: is empty")
             return
         next_item = heapq.heappop(self._execution_order) #reminder: _execution_order contains a tuple with the Action object at [2]
@@ -90,7 +91,8 @@ class ActionManager:
     def start(self):
         '''Essentially a wrapper for self._run() in a daemon thread to prevent blocking.'''
         macro_thread = threading.Thread(target=self._run, daemon=True)
-        macro_thread.start()
+        if not macro_thread.is_alive():
+            macro_thread.start()
 
     def stop(self):
         '''Stops execution.'''
