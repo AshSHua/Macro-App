@@ -468,6 +468,7 @@ class GUI:
                 self.library.validate_name(name)
             except ValueError:
                 name_var.set("Invalid Name")
+                save_window.after(1000, lambda: name_var.set(""))
                 return
             if self.library.index_collision(name=name):
                 overwrite_existing = open_overwrite()

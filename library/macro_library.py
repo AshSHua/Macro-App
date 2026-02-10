@@ -23,6 +23,9 @@ class MacroLibrary:
 
         self.save_folder = folder_path #save folder
 
+        self.settings_folder = os.path.join(folder_path, "settings")
+        os.makedirs(self.settings_folder, exist_ok=True)
+
         self._create_settings()
         
         self.index = {} #dict mapping macro file names to their path
@@ -40,6 +43,8 @@ class MacroLibrary:
     @staticmethod
     def validate_name(name:str):
         '''Checks input name string against the class constants, raising a ValueError if name is invalid.'''
+        if not name:
+            raise ValueError("Invalid name: empty.")
         if (not all(char in MacroLibrary.ALLOWED_CHARS for char in name)):
             raise ValueError("Invalid name: invalid character.")
         if (len(name) > MacroLibrary.MAX_NAME_LENGTH):
@@ -91,11 +96,11 @@ class MacroLibrary:
         if "settings.json" in os.listdir(self.save_folder):
             return
         data = {"start_stop_hotkey": MacroLibrary.DEFAULT_HOTKEY}
-        path = os.path.join(self.save_folder, "settings.json")
-        save_as_json(data=data, file_path=path)
+        path = self.settings_folder
+        save_as_json(data=data, file_path=os.path.join(path, "settings.json"))
 
     def load_settings(self) -> dict:
-        path = os.path.join(self.save_folder, "settings.json")
+        path = os.path.join(self.settings_folder, "settings.json")
         data = retrieve_from_json(file_path=path)
         if not isinstance(data, dict):
             return
@@ -108,4 +113,4 @@ class MacroLibrary:
         for key in old_settings.keys():
             if new_settings[key] is not None:
                 old_settings[key] = new_settings[key]
-        save_as_json(old_settings, os.path.join(self.save_folder, "settings.json"))
+        save_as_json(old_settings, os.path.join(self.settings_folder, "settings.json"))
