@@ -4,7 +4,6 @@ from macro import *
 from library import *
 from recording import *
 from pynput import keyboard
-import os
 import sys
 from pathlib import Path
 
