@@ -3,8 +3,10 @@ from tkinter import ttk
 from macro import *
 from library import *
 from recording import *
-from pynput import mouse, keyboard
+from pynput import keyboard
 import os
+import sys
+from pathlib import Path
 
 class GUI:
     '''A simple GUI for this macro app, made with Tkinter.'''
@@ -57,8 +59,14 @@ class GUI:
         self.root.geometry(f"{root_width}x{root_height}+{(self.root.winfo_screenwidth() - root_width)//2}+{(self.root.winfo_screenheight() - root_height)//2}") #width x height + x_offset + y_offset
         self.root.minsize(width=600, height=400)
         self.root.title("Macro")
-        img_path = os.path.join(os.path.dirname(__file__), r"Macro App Icon.png")
-        icon = tk.PhotoImage(file=img_path)
+
+        if getattr(sys, "frozen", False): #fix the pyinstaller issue
+            base_path = Path(sys._MEIPASS) / "gui"
+        else:
+            base_path = Path(__file__).parent
+
+        img_path = base_path / "icon.png"
+        icon = tk.PhotoImage(file=str(img_path))
         self.root.iconphoto(True, icon)
 
         self.root_frame = tk.Frame(self.root)
