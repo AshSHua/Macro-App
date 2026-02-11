@@ -40,13 +40,16 @@ class GUI:
             else:
                 self._on_start()
 
-    def _reset_settings(self):
+    def _reset_settings(self, start_listener:bool = True):
         if hasattr(self, "_ss_hotkey_listener") and self._ss_hotkey_listener.is_alive():
             self._ss_hotkey_listener.stop()
         self._ss_hotkey_listener = keyboard.Listener(on_press=self._on_ss_hotkey_detection)
         self._start_stop_hotkey = str_to_key(self._settings["start_stop_hotkey"])
         self._ss_hotkey_listener.daemon = True #hotkey listener has to stop when gui is closed
-        self._ss_hotkey_listener.start()
+        if start_listener:
+            self._ss_hotkey_listener.start()
+        else:
+            return
 
     def _setup_root(self):
         root_width = 600
@@ -85,7 +88,7 @@ class GUI:
         self.saves_list_lb.pack(side="left", fill="both", expand=True)
         self.saves_list_sb.pack(side="right", fill="y")
         
-        self.load_macro_button = ttk.Button(frame, text="Load Macro", command=self._on_load_macro)
+        self.load_macro_button = ttk.Button(frame, text="Load Macro", command=self._on_load_macro, takefocus=False)
         self.load_macro_button.grid(row=1, column=0, pady=(GUI.INNER_PADDING/2, GUI.INNER_PADDING/2), sticky="nsew")
         self.load_macro_button.config(state="disabled")
 
@@ -120,7 +123,7 @@ class GUI:
         self.action_list_lb.pack(side="left", fill="both", expand=True)
         self.action_list_sb.pack(side="left", fill="y")
 
-        self.add_action_button = ttk.Button(self.editor_frame, text="Add Action", command=self._on_add_action)
+        self.add_action_button = ttk.Button(self.editor_frame, text="Add Action", command=self._on_add_action, takefocus=False)
         self.add_action_button.grid(row=2, column=0, padx=(0, GUI.INNER_PADDING/2), pady=(GUI.INNER_PADDING/2, 0), sticky="nsew")
 
         self.current_action_display = tk.Frame(self.editor_frame, bd=1, relief="sunken")
@@ -145,7 +148,7 @@ class GUI:
         self.current_action_location = ttk.Label(self.current_action_display, text="Location:")
         self.current_action_location.grid(row=3, column=0, columnspan=2)
 
-        self.delete_action_btn = ttk.Button(self.current_action_display, text="Delete Action", command=self._on_delete_action)
+        self.delete_action_btn = ttk.Button(self.current_action_display, text="Delete Action", command=self._on_delete_action, takefocus=False)
         self.delete_action_btn.grid(row=4, column=0, padx=2, pady=2, sticky="nsew")
 
         self.misc_buttons_frame = tk.Frame(frame)
@@ -156,23 +159,23 @@ class GUI:
         self.misc_buttons_frame.columnconfigure(2, weight=1)
         self.misc_buttons_frame.grid(row=1, column=0, rowspan=1, pady=(GUI.INNER_PADDING/2, 0), sticky="nsew")
 
-        self.start_button = ttk.Button(self.misc_buttons_frame, text=f"Start ({key_to_str(self._start_stop_hotkey)})", command=self._on_start)
+        self.start_button = ttk.Button(self.misc_buttons_frame, text=f"Start ({key_to_str(self._start_stop_hotkey)})", command=self._on_start, takefocus=False)
         self.start_button.grid(row=0, column=0, sticky="nsew")
 
-        self.stop_button = ttk.Button(self.misc_buttons_frame, text=f"Stop ({key_to_str(self._start_stop_hotkey)})", command=self._on_stop)
+        self.stop_button = ttk.Button(self.misc_buttons_frame, text=f"Stop ({key_to_str(self._start_stop_hotkey)})", command=self._on_stop, takefocus=False)
         self.stop_button.grid(row=0, column=1, sticky="nsew")
 
         self.loop_state = tk.BooleanVar(self.root_frame, value=False)
         self.looping_check_btn = ttk.Checkbutton(self.misc_buttons_frame, text="Loop", variable=self.loop_state)
         self.looping_check_btn.grid(row=0, column=2)
 
-        self.save_macro_button = ttk.Button(self.misc_buttons_frame, text="Save Macro", command=self._on_save_macro)
+        self.save_macro_button = ttk.Button(self.misc_buttons_frame, text="Save Macro", command=self._on_save_macro, takefocus=False)
         self.save_macro_button.grid(row=1, column=0, sticky="nsew")
 
-        self.record_button = ttk.Button(self.misc_buttons_frame, text="Record", command=self._on_record)
+        self.record_button = ttk.Button(self.misc_buttons_frame, text="Record", command=self._on_record, takefocus=False)
         self.record_button.grid(row=1, column=2, sticky="nsew")
 
-        self.hotkey_settings_btn = ttk.Button(self.misc_buttons_frame, text="Hotkey Settings", command=self._on_hotkey_settings)
+        self.hotkey_settings_btn = ttk.Button(self.misc_buttons_frame, text="Hotkey Settings", command=self._on_hotkey_settings, takefocus=False)
         self.hotkey_settings_btn.grid(row=1, column=1, sticky="nsew")
 
     def _update_btn_state(self):
@@ -239,8 +242,8 @@ class GUI:
             confirmation_window.destroy()
 
         ays = ttk.Label(confirmation_window, text="Are you sure?")
-        yes_btn = ttk.Button(confirmation_window, text="Yes", command=lambda: set_result(True))
-        no_btn = ttk.Button(confirmation_window, text="No", command=lambda: set_result(False))
+        yes_btn = ttk.Button(confirmation_window, text="Yes", command=lambda: set_result(True), takefocus=False)
+        no_btn = ttk.Button(confirmation_window, text="No", command=lambda: set_result(False), takefocus=False)
 
         ays.pack(side="top")
         yes_btn.pack(side="left")
@@ -324,8 +327,7 @@ class GUI:
                     action_reflection["type"] = "mouse_down"
                 case _:
                     return
-            type_display.config(text=f"Type: {action_reflection["type"]}")
-            
+            type_display.config(text=f"Type: {action_reflection["type"]}")     
             
         def on_timestamp_change(*args):
             try:
@@ -336,12 +338,15 @@ class GUI:
 
         def on_capture():
             nonlocal action_reflection
+            action_reflection = None
             action_reflection = recorder.capture().to_dict()
 
             type_display.config(text=f"Type: {action_reflection["type"]}")
             input_display.config(text=f"Input: {action_reflection["input"]}")
             timestamp_var.set(str(round(action_reflection["timestamp"], 3)))
             location_display.config(text=f"Location: {action_reflection["location"]}")
+
+            return
 
         def on_add_action():
             nonlocal return_result
@@ -364,7 +369,7 @@ class GUI:
 
         type_display = ttk.Label(editor, text="Type:")
         type_display.grid(row=0, column=0, sticky="nsew")
-        type_flip_btn = ttk.Button(editor, text="Switch Type", command=on_type_switch)
+        type_flip_btn = ttk.Button(editor, text="Switch Type", command=on_type_switch, takefocus=False)
         type_flip_btn.grid(row=0, column=1, sticky="nsew")
 
         input_display = ttk.Label(editor, text="Input:")
@@ -383,16 +388,17 @@ class GUI:
         location_display = ttk.Label(editor, text="Location:")
         location_display.grid(row=3, column=0, columnspan=2, sticky="nsew")
 
-        capture_action_btn = ttk.Button(editor, text="Capture", command=on_capture)
+        capture_action_btn = ttk.Button(editor, text="Capture", command=on_capture, takefocus=False)
         capture_action_btn.grid(row=4, column=0, columnspan=2, sticky="nsew")
 
-        add_action_btn = ttk.Button(editor, text="Add Action", command=on_add_action)
+        add_action_btn = ttk.Button(editor, text="Add Action", command=on_add_action, takefocus=False)
         add_action_btn.grid(row=5, column=0, sticky="nsew")
 
-        discard_action_btn = ttk.Button(editor, text="Discard Action", command=on_discard_action)
+        discard_action_btn = ttk.Button(editor, text="Discard Action", command=on_discard_action, takefocus=False)
         discard_action_btn.grid(row=5, column=1, sticky="nsew")
 
         self.root.wait_window(editor)
+        
         if return_result:
             return Action.from_dict(action_reflection)
         else:
@@ -403,7 +409,7 @@ class GUI:
         #validation
         if not isinstance(action, Action):
             return
-        if action.type is None or action.input is None or action.timestamp < 0 or action.location:
+        if action.type is None or action.input is None or action.timestamp < 0:
             print("Invalid action.")
             return
         try:
@@ -499,10 +505,10 @@ class GUI:
             message = ttk.Label(overwrite_window, text=f"Name: {name} is taken, overwrite?")
             message.pack(side="top")
 
-            yes_btn = ttk.Button(overwrite_window, text="Yes", command=lambda: set_overwrite(True))
+            yes_btn = ttk.Button(overwrite_window, text="Yes", command=lambda: set_overwrite(True), takefocus=False)
             yes_btn.pack(side="left")
 
-            no_btn = ttk.Button(overwrite_window, text="No", command=lambda: set_overwrite(False))
+            no_btn = ttk.Button(overwrite_window, text="No", command=lambda: set_overwrite(False), takefocus=False)
             no_btn.pack(side="right")
 
             save_window.wait_window(overwrite_window)
@@ -512,7 +518,7 @@ class GUI:
         name_entry = ttk.Entry(save_window, textvariable=name_var)
         name_entry.pack(side="top")
 
-        confirm_button = ttk.Button(save_window, text="Confirm", command=confirm_save)
+        confirm_button = ttk.Button(save_window, text="Confirm", command=confirm_save, takefocus=False)
         confirm_button.pack(side="bottom")
 
         self.root.wait_window(save_window)
@@ -557,14 +563,14 @@ class GUI:
         def confirm():
             record_window.destroy()
 
-        start_record_btn = ttk.Button(record_window, text="Start", command=start_recording)
+        start_record_btn = ttk.Button(record_window, text="Start", command=start_recording, takefocus=False)
         start_record_btn.grid(row=0, column=0, sticky="nsew")
 
-        stop_record_btn = ttk.Button(record_window, text="Stop", command=stop_recording)
+        stop_record_btn = ttk.Button(record_window, text="Stop", command=stop_recording, takefocus=False)
         stop_record_btn.config(state="disabled")
         stop_record_btn.grid(row=0, column=1, sticky="nsew")
 
-        confirm_btn = ttk.Button(record_window, text="Confirm", command=confirm)
+        confirm_btn = ttk.Button(record_window, text="Confirm", command=confirm, takefocus=False)
         confirm_btn.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
         self.root.wait_window(record_window)
@@ -573,6 +579,8 @@ class GUI:
         self._refresh_ui()
     
     def _on_hotkey_settings(self):
+        self._reset_settings(False) #prevents listener from activating when setting the hotkey
+
         hotkey = self._start_stop_hotkey
 
         top_width, top_height = 200, 100
@@ -606,7 +614,7 @@ class GUI:
         def cancel():
             settings_window.destroy()
 
-        start_stop_htky_btn = ttk.Button(settings_window, text="Start/Stop", command=change_hotkey)
+        start_stop_htky_btn = ttk.Button(settings_window, text="Start/Stop", command=change_hotkey, takefocus=False)
         start_stop_htky_btn.grid(row=0, column=0, sticky="nsew")
 
         htky_var = tk.StringVar(settings_window)
@@ -614,11 +622,13 @@ class GUI:
         current_htky_display = ttk.Label(settings_window, textvariable=htky_var)
         current_htky_display.grid(row=0, column=1)
 
-        save_btn = ttk.Button(settings_window, text="Save", command=save_htky)
+        save_btn = ttk.Button(settings_window, text="Save", command=save_htky, takefocus=False)
         save_btn.grid(row=1, column=0, sticky="nsew")
 
-        cancel_btn = ttk.Button(settings_window, text="Cancel", command=cancel)
+        cancel_btn = ttk.Button(settings_window, text="Cancel", command=cancel, takefocus=False)
         cancel_btn.grid(row=1, column=1, sticky="nsew")
+
+        self.root.wait_window(settings_window)
 
     def _refresh_ui(self):
         '''Calls all functions that (meaningfully) update the ui. Note: can be slow if lots of changes occur.'''

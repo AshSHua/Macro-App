@@ -12,6 +12,8 @@ class ActionRecorder:
         self._recorded_actions = []
         self._start_time = None #set whenever record is hit
 
+        self._recorder_thread = threading.Thread(target=self._record, daemon=True)
+
     def _record(self) -> list[Action]:
         '''Starts a recording session that tracks and stores keyboard and mouse inputs until stop is called.'''
         self._recorded_actions.clear()
@@ -60,9 +62,11 @@ class ActionRecorder:
     def start_record(self):
         '''Wrapper for _record to start it in a different thread so that stop can be safely called.'''
         self.stop_event.clear()
-        recorder_thread = threading.Thread(target=self._record, daemon=True)
-        if not recorder_thread.is_alive():
-            recorder_thread.start()
+        if self._recorder_thread is not None and self._recorder_thread.is_alive():
+            return
+        else:
+            self._recorder_thread = threading.Thread(target=self._record, daemon=True)
+            self._recorder_thread.start()
 
     def stop_record(self):
         '''Used to stop the recording session. Not applicable to capture.'''
