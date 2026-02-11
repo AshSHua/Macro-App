@@ -457,7 +457,7 @@ class GUI:
         name = None
         overwrite_existing = False
         
-        top_width, top_height = 150, 50
+        top_width, top_height = 250, 125
         pos_x, pos_y = (self.root.winfo_x() + (self.root.winfo_width() - top_width)//2), (self.root.winfo_y() + (self.root.winfo_height() - top_height)//2)
         
         save_window = tk.Toplevel(self.root)
@@ -514,18 +514,21 @@ class GUI:
             save_window.wait_window(overwrite_window)
             return overwrite
         
+        name_restrictions = ttk.Label(save_window, text="Name can only contain letters,\nnumbers, underscores, and hyphens.\nName must be between 1 and 20\ncharacters long.") #newline to make it fit
+        name_restrictions.pack(side="top")
+
         name_var = tk.StringVar(save_window)
         name_entry = ttk.Entry(save_window, textvariable=name_var)
-        name_entry.pack(side="top")
+        name_entry.pack(side="left", expand=True)
 
         confirm_button = ttk.Button(save_window, text="Confirm", command=confirm_save, takefocus=False)
-        confirm_button.pack(side="bottom")
+        confirm_button.pack(side="right", expand=True)
 
         self.root.wait_window(save_window)
         try:
             self.library.save_macro(macro=self.current_macro, name=name, overwrite=overwrite_existing)
         except ValueError:
-            print("Error: Tried to save macro with invalid name.")
+            return
         self._refresh_ui()
         return
 

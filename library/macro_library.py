@@ -8,7 +8,7 @@ class MacroLibrary:
     '''Class for macro storage and management.'''
     
     ALLOWED_CHARS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-") #set of valid chars for file names
-    MAX_NAME_LENGTH = 16 #maximum length for file names
+    MAX_NAME_LENGTH = 20 #maximum length for file names
 
     DEFAULT_HOTKEY = "Key.f6" #if settings saving fails, falls back to this
 
