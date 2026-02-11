@@ -1,7 +1,7 @@
 # Macro App
 
 ## Details
-A simple automation tool for keyboard and mouse inputs. Allows record and playback functionality as well as manual editing afterwards. Supports hotkeys for starting and stopping.
+A simple automation tool for keyboard and mouse inputs. Allows record and playback functionality as well as manual editing afterwards. Supports hotkeys for starting and stopping. Can also save macros for later retrieval.
 
 ## Purpose
 I made it mainly to automate some simple repetitive game tasks.
