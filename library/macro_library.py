@@ -93,7 +93,7 @@ class MacroLibrary:
     #settings dict format is the following: {"start_stop_hotkey": str} where the str objects should come from input_conversion. If they are None, then they aren't changed.
     def _create_settings(self):
         '''Creates the settings file in save_folder if it doesn't exist.'''
-        if "settings.json" in os.listdir(self.save_folder):
+        if "settings.json" in os.listdir(self.settings_folder):
             return
         data = {"start_stop_hotkey": MacroLibrary.DEFAULT_HOTKEY}
         path = self.settings_folder
