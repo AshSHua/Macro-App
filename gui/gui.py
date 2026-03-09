@@ -334,7 +334,14 @@ class GUI:
                     action_reflection["type"] = "mouse_down"
                 case _:
                     return
-            type_display.config(text=f"Type: {action_reflection["type"]}")     
+            type_display.config(text=f"Type: {action_reflection["type"]}")
+
+        def on_set_current_location():
+            if action_reflection["type"] == "mouse_up" or action_reflection["type"] == "mouse_down":
+                action_reflection["location"] = None
+                location_display.config(text=f"Location: Current")
+            else:
+                return
             
         def on_timestamp_change(*args):
             try:
@@ -393,7 +400,9 @@ class GUI:
         timestamp_entry.pack(side="right", fill="x", expand=True)
 
         location_display = ttk.Label(editor, text="Location:")
-        location_display.grid(row=3, column=0, columnspan=2, sticky="nsew")
+        location_display.grid(row=3, column=0, sticky="nsew")
+        location_current_btn = ttk.Button(editor, text="Set Current", command=on_set_current_location, takefocus=False)
+        location_current_btn.grid(row=3, column=1, sticky="nsew")
 
         capture_action_btn = ttk.Button(editor, text="Capture", command=on_capture, takefocus=False)
         capture_action_btn.grid(row=4, column=0, columnspan=2, sticky="nsew")
